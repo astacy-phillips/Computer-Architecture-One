@@ -5,6 +5,8 @@
 /**
  * Class for simulating a simple Computer (CPU & memory)
  */
+
+
 class CPU {
 
     /**
@@ -14,11 +16,11 @@ class CPU {
         this.ram = ram;
 
         this.reg = new Array(8).fill(0); // General-purpose registers R0-R7
-        
+
         // Special-purpose registers
         this.reg.PC = 0; // Program Counter
     }
-	
+
     /**
      * Store value in memory address, useful for program loading
      */
@@ -64,10 +66,15 @@ class CPU {
      * Advances the CPU one cycle
      */
     tick() {
+        const IR = this.ram.read(this.reg.PC);
+
+        const operandA = this.ram.read(this.reg.PC + 1);
+        const operandB = this.ram.read(this.reg.PC + 2);
         // Load the instruction register (IR--can just be a local variable here)
         // from the memory address pointed to by the PC. (I.e. the PC holds the
         // index into memory of the instruction that's about to be executed
         // right now.)
+
 
         // !!! IMPLEMENT ME
 
@@ -78,17 +85,41 @@ class CPU {
         // needs them.
 
         // !!! IMPLEMENT ME
+        const LDI = 0b10011001;
+        const HLT = 0b00000001;
+        const PRN = 0b01000011;
 
         // Execute the instruction. Perform the actions for the instruction as
         // outlined in the LS-8 spec.
 
+        const handle_LDI = (reg, val) => {
+            this.reg[reg] = val;
+        }
+
+        const handle_HLT = () => {
+            this.stopClock();
+        }
+
+        const handle_PRN = (reg) => {
+            return this.reg[reg];
+        }
+
+        const branchTable = {};
+
+        branchTable[LDI] = handle_LDI
+        branchTable[HLT] = handle_HLT
+        branchTable[PRN] = handle_PRN
+
         // !!! IMPLEMENT ME
+        let handler = branchTable[IR];
+
+        handler();
 
         // Increment the PC register to go to the next instruction. Instructions
         // can be 1, 2, or 3 bytes long. Hint: the high 2 bits of the
         // instruction byte tells you how many bytes follow the instruction byte
         // for any particular instruction.
-        
+
         // !!! IMPLEMENT ME
     }
 }
