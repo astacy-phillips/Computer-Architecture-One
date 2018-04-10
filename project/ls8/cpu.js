@@ -97,14 +97,15 @@ class CPU {
                 this.reg[operandA] = operandB;
                     break;   
             case PRN:
-                return this.reg[operandA];
+                console.log(this.reg[operandA]);
             case MUL:
-                this.alu('MUL', operandA, operandB)
+                this.alu('MUL', operandA, operandB);
                 break;
             case HLT:
                 this.stopClock();
-                    break;
+                break;
             }
+
         // !!! IMPLEMENT ME
         
 
@@ -138,9 +139,9 @@ class CPU {
 
         // !!! IMPLEMENT ME
         let operandCount = IR >>> 6 & 0b11;
-        let totalInsturctionLen = operandCount +1;
+        let totalInstructionLen = operandCount +1;
 
-        this.reg.PC += totalInsturctionLen;
+        this.reg.PC += totalInstructionLen;
     }
 }
 
