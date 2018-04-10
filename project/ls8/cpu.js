@@ -58,6 +58,7 @@ class CPU {
         switch (op) {
             case 'MUL':
                 // !!! IMPLEMENT ME
+                this.reg[regA] *= this.reg[regB];
                 break;
         }
     }
@@ -66,54 +67,69 @@ class CPU {
      * Advances the CPU one cycle
      */
     tick() {
-        const IR = this.ram.read(this.reg.PC);
-
-        const operandA = this.ram.read(this.reg.PC + 1);
-        const operandB = this.ram.read(this.reg.PC + 2);
         // Load the instruction register (IR--can just be a local variable here)
         // from the memory address pointed to by the PC. (I.e. the PC holds the
         // index into memory of the instruction that's about to be executed
         // right now.)
-
-
+        
         // !!! IMPLEMENT ME
-
+        let IR = this.ram.read(this.reg.PC);
+        
         // Debugging output
         //console.log(`${this.reg.PC}: ${IR.toString(2)}`);
-
+        
         // Get the two bytes in memory _after_ the PC in case the instruction
         // needs them.
-
         // !!! IMPLEMENT ME
+        let operandA = this.ram.read(this.reg.PC + 1);
+        let operandB = this.ram.read(this.reg.PC + 2);
+        
+        // Execute the instruction. Perform the actions for the instruction as
+        // outlined in the LS-8 spec.
         const LDI = 0b10011001;
         const HLT = 0b00000001;
         const PRN = 0b01000011;
+        const MUL = 0b10101010;
 
-        // Execute the instruction. Perform the actions for the instruction as
-        // outlined in the LS-8 spec.
 
-        const handle_LDI = (reg, val) => {
-            this.reg[reg] = val;
-        }
-
-        const handle_HLT = () => {
-            this.stopClock();
-        }
-
-        const handle_PRN = (reg) => {
-            return this.reg[reg];
-        }
-
-        const branchTable = {};
-
-        branchTable[LDI] = handle_LDI
-        branchTable[HLT] = handle_HLT
-        branchTable[PRN] = handle_PRN
-
+        switch(IR) {
+            case LDI:
+                this.reg[operandA] = operandB;
+                    break;   
+            case PRN:
+                return this.reg[operandA];
+            case MUL:
+                this.alu('MUL', operandA, operandB)
+                break;
+            case HLT:
+                this.stopClock();
+                    break;
+            }
         // !!! IMPLEMENT ME
-        let handler = branchTable[IR];
+        
 
-        handler();
+        // const handle_LDI = (reg, val) => {
+        //     this.reg[reg] = val;
+        // }
+
+        // const handle_HLT = () => {
+        //     this.stopClock();
+        // }
+
+        // const handle_PRN = (reg) => {
+        //     return this.reg[reg];
+        // }
+
+        // const branchTable = {};
+
+        // branchTable[LDI] = handle_LDI
+        // branchTable[HLT] = handle_HLT
+        // branchTable[PRN] = handle_PRN
+
+
+        // let handler = branchTable[IR];
+
+        // handler();
 
         // Increment the PC register to go to the next instruction. Instructions
         // can be 1, 2, or 3 bytes long. Hint: the high 2 bits of the
@@ -121,6 +137,10 @@ class CPU {
         // for any particular instruction.
 
         // !!! IMPLEMENT ME
+        let operandCount = IR >>> 6 & 0b11;
+        let totalInsturctionLen = operandCount +1;
+
+        this.reg.PC += totalInsturctionLen;
     }
 }
 
