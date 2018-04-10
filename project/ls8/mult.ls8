@@ -1,5 +1,4 @@
 # mult.ls8
-
 10011001 # LDI R0,8  Load R0 with value 8
 00000000
 00001000
