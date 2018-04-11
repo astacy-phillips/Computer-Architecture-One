@@ -88,6 +88,8 @@ class CPU {
     const HLT = 0b00000001;
     const PRN = 0b01000011;
     const MUL = 0b10101010;
+    const POP = 0b01001100;
+    const PUSH = 0b01001101;
 
     switch (IR) {
       case LDI:
@@ -98,6 +100,14 @@ class CPU {
         break;
       case MUL:
         this.alu('MUL', operandA, operandB);
+        break;
+      case PUSH:
+        this.reg[7]--;
+        this.ram.write(this.reg[7], this.reg[operandA]);
+        break;
+      case POP:
+        this.reg[operandA] = this.ram.read(this.reg[7]);
+        this.reg[7]++;
         break;
       case HLT:
         this.stopClock();

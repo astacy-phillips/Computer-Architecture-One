@@ -14,7 +14,7 @@ function loadMemory() {
     .toString()
     .split('\n')
     .reduce((array, line) => {
-      if (line[0] !== '#') {
+      if (line[0] !== '#' && line !== '') {
         return array.concat(line.slice(0, 8));
       }
       return array;
