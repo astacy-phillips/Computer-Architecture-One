@@ -90,80 +90,99 @@ class CPU {
     const MUL = 0b10101010;
     const POP = 0b01001100;
     const PUSH = 0b01001101;
+    const CALL = 0b01001000;
+    const RET = 0b00001001;
 
-    switch (IR) {
-      case LDI:
-        this.reg[operandA] = operandB;
-        break;
-      case PRN:
-        console.log(this.reg[operandA]);
-        break;
-      case MUL:
-        this.alu('MUL', operandA, operandB);
-        break;
-      case PUSH:
-        this.reg[7]--;
-        this.ram.write(this.reg[7], this.reg[operandA]);
-        break;
-      case POP:
-        this.reg[operandA] = this.ram.read(this.reg[7]);
-        this.reg[7]++;
-        break;
-      case HLT:
-        this.stopClock();
-        break;
-      default:
-        console.log('invalid instruction: ' + IR.toString(2));
-        this.stopClock();
-    }
+    // switch (IR) {
+    //   case LDI:
+    //     this.reg[operandA] = operandB;
+    //     break;
+    //   case PRN:
+    //     console.log(this.reg[operandA]);
+    //     break;
+    //   case MUL:
+    //     this.alu('MUL', operandA, operandB);
+    //     break;
+    //   case PUSH:
+    //     this.reg[7]--;
+    //     this.ram.write(this.reg[7], this.reg[operandA]);
+    //     break;
+    //   case POP:
+    //     this.reg[operandA] = this.ram.read(this.reg[7]);
+    //     this.reg[7]++;
+    //     break;
+    //   case HLT:
+    //     this.stopClock();
+    //     break;
+    //   default:
+    //     console.log('invalid instruction: ' + IR.toString(2));
+    //     this.stopClock();
+    // }
 
     // !!! IMPLEMENT ME
 
-    // const handle_LDI = (operandA, operandB) => {
-    //   this.reg[operandA] = operandB;
-    // };
+    const handle_LDI = (operandA, operandB) => {
+      this.reg[operandA] = operandB;
+    };
 
-    // const handle_PRN = operandA => {
-    //   console.log(this.reg[operandA]);
-    // };
+    const handle_PRN = operandA => {
+      console.log(this.reg[operandA]);
+    };
 
-    // const handle_MUL = (operandA, operandB) => {
-    //   this.alu('MUL', operandA, operandB);
-    // };
+    const handle_MUL = (operandA, operandB) => {
+      this.alu('MUL', operandA, operandB);
+    };
 
-    // const handle_PUSH = operandA => {
-    //   this.reg[7]--;
-    //   this.ram.write(this.reg[7], this.reg[operandA]);
-    // };
+    const handle_PUSH = operandA => {
+      this.reg[7]--;
+      this.ram.write(this.reg[7], this.reg[operandA]);
+    };
 
-    // const handle_POP = operandA => {
-    //   this.reg[operandA] = this.ram.read(this.reg[7]);
-    //   this.reg[7]++;
-    // };
+    const handle_POP = operandA => {
+      this.reg[operandA] = this.ram.read(this.reg[7]);
+      this.reg[7]++;
+    };
 
-    // const handle_HLT = () => {
-    //   this.stopClock();
-    // };
+    const handle_CALL = operandA => {
+      // --this.reg[7];
+      // this.ram.write(this.reg[7], this.reg.PC + 2)
+      // this.reg.PC = this.reg[operandA];
+      // console.log(this.reg[7])
+      // console.log(this.reg.PC + 2)
+      // console.log(this.reg[operandA])
+      // return this.reg[operandA];
+    };
+  
+    const handle_RET = () => {
+      this.reg.PC = this.ram.read(this.reg[7]);
+      this.reg[7]++;
+    }
 
-    // const invalid_instruction = () => {
-    //   console.log('invalid instruction: ' + IR.toString(2));
-    //   this.stopClock();
-    // };
+    const handle_HLT = () => {
+      this.stopClock();
+    };
 
-    // const branchTable = {
-    //   [LDI]: handle_LDI,
-    //   [PRN]: handle_PRN,
-    //   [MUL]: handle_MUL,
-    //   [PUSH]: handle_PUSH,
-    //   [POP]: handle_POP,
-    //   [HLT]: handle_HLT,
-    // };
+    const invalid_instruction = () => {
+      console.log('invalid instruction: ' + IR.toString(2));
+      this.stopClock();
+    };
 
-    // if (Object.keys(branchTable).includes(IR.toString())) {
-    //   branchTable[IR](operandA, operandB);
-    // } else {
-    //   invalid_instruction();
-    // }
+    const branchTable = {
+      [LDI]: handle_LDI,
+      [PRN]: handle_PRN,
+      [MUL]: handle_MUL,
+      [PUSH]: handle_PUSH,
+      [POP]: handle_POP,
+      [HLT]: handle_HLT,
+      [CALL]: handle_CALL,
+      [RET]: handle_RET
+    };
+
+    if (Object.keys(branchTable).includes(IR.toString())) {
+      branchTable[IR](operandA, operandB);
+    } else {
+      invalid_instruction();
+    }
 
     // Increment the PC register to go to the next instruction. Instructions
     // can be 1, 2, or 3 bytes long. Hint: the high 2 bits of the
@@ -174,7 +193,11 @@ class CPU {
     let operandCount = (IR >>> 6) & 0b11;
     let totalInstructionLen = operandCount + 1;
 
-    this.reg.PC += totalInstructionLen;
+    switch (IR) {
+      case CALL: 
+      default:
+      this.reg.PC += totalInstructionLen;
+    }
   }
 }
 
