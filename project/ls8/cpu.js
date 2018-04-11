@@ -119,27 +119,51 @@ class CPU {
 
     // !!! IMPLEMENT ME
 
-    // const handle_LDI = (reg, val) => {
-    //     this.reg[reg] = val;
-    // }
+    // const handle_LDI = (operandA, operandB) => {
+    //   this.reg[operandA] = operandB;
+    // };
+
+    // const handle_PRN = operandA => {
+    //   console.log(this.reg[operandA]);
+    // };
+
+    // const handle_MUL = (operandA, operandB) => {
+    //   this.alu('MUL', operandA, operandB);
+    // };
+
+    // const handle_PUSH = operandA => {
+    //   this.reg[7]--;
+    //   this.ram.write(this.reg[7], this.reg[operandA]);
+    // };
+
+    // const handle_POP = operandA => {
+    //   this.reg[operandA] = this.ram.read(this.reg[7]);
+    //   this.reg[7]++;
+    // };
 
     // const handle_HLT = () => {
-    //     this.stopClock();
+    //   this.stopClock();
+    // };
+
+    // const invalid_instruction = () => {
+    //   console.log('invalid instruction: ' + IR.toString(2));
+    //   this.stopClock();
+    // };
+
+    // const branchTable = {
+    //   [LDI]: handle_LDI,
+    //   [PRN]: handle_PRN,
+    //   [MUL]: handle_MUL,
+    //   [PUSH]: handle_PUSH,
+    //   [POP]: handle_POP,
+    //   [HLT]: handle_HLT,
+    // };
+
+    // if (Object.keys(branchTable).includes(IR.toString())) {
+    //   branchTable[IR](operandA, operandB);
+    // } else {
+    //   invalid_instruction();
     // }
-
-    // const handle_PRN = (reg) => {
-    //     return this.reg[reg];
-    // }
-
-    // const branchTable = {};
-
-    // branchTable[LDI] = handle_LDI
-    // branchTable[HLT] = handle_HLT
-    // branchTable[PRN] = handle_PRN
-
-    // let handler = branchTable[IR];
-
-    // handler();
 
     // Increment the PC register to go to the next instruction. Instructions
     // can be 1, 2, or 3 bytes long. Hint: the high 2 bits of the
