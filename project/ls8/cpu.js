@@ -17,6 +17,7 @@ class CPU {
 
     // Special-purpose registers
     this.reg.PC = 0; // Program Counter
+    this.reg[7] = this.ram.read(Number(0xf4.toString()));
   }
 
   /**
@@ -72,6 +73,9 @@ class CPU {
 
     // !!! IMPLEMENT ME
     let IR = this.ram.read(this.reg.PC);
+
+    let callHandler;
+    let interruptHandler;
 
     // Debugging output
     //console.log(`${this.reg.PC}: ${IR.toString(2)}`);
@@ -143,60 +147,82 @@ class CPU {
       this.reg[7]++;
     };
 
-    const handle_CALL = operandA => {
-      // --this.reg[7];
-      // this.ram.write(this.reg[7], this.reg.PC + 2)
-      // this.reg.PC = this.reg[operandA];
-      // console.log(this.reg[7])
-      // console.log(this.reg.PC + 2)
-      // console.log(this.reg[operandA])
-      // return this.reg[operandA];
-    };
-  
     const handle_RET = () => {
-      this.reg.PC = this.ram.read(this.reg[7]);
-      this.reg[7]++;
+      callHandler = this.ram.read(this.reg[7]);
+      this.reg[7] += 1;
+      return callHandler;
     }
+    const handle_CALL = () => {
+      this.reg[7] -= 1;
+      this.ram.write(this.reg[7], this.reg.PC + (IR >>> 6) + 1)
+      callHandler = this.reg[operandA];
+      return callHandler;
 
-    const handle_HLT = () => {
-      this.stopClock();
-    };
+      // const handle_CALL = operandA => {
+      //   // --this.reg[7];
+      //   // this.ram.write(this.reg[7], this.reg.PC + 2)
+      //   // this.reg.PC = this.reg[operandA];
+      //   // console.log(this.reg[7])
+      //   // console.log(this.reg.PC + 2)
+      //   // console.log(this.reg[operandA])
+      //   // return this.reg[operandA];
+      // };
 
-    const invalid_instruction = () => {
-      console.log('invalid instruction: ' + IR.toString(2));
-      this.stopClock();
-    };
+      // const handle_RET = () => {
+      //   this.reg.PC = this.ram.read(this.reg[7]);
+      //   this.reg[7]++;
+      // }
 
-    const branchTable = {
-      [LDI]: handle_LDI,
-      [PRN]: handle_PRN,
-      [MUL]: handle_MUL,
-      [PUSH]: handle_PUSH,
-      [POP]: handle_POP,
-      [HLT]: handle_HLT,
-      [CALL]: handle_CALL,
-      [RET]: handle_RET
-    };
+      const handle_HLT = () => {
+        this.stopClock();
+      };
 
-    if (Object.keys(branchTable).includes(IR.toString())) {
+      const invalid_instruction = () => {
+        console.log('invalid instruction: ' + IR.toString(2));
+        this.stopClock();
+      };
+
+      const branchTable = {
+        [LDI]: handle_LDI,
+        [PRN]: handle_PRN,
+        [MUL]: handle_MUL,
+        [PUSH]: handle_PUSH,
+        [POP]: handle_POP,
+        [HLT]: handle_HLT,
+        [CALL]: handle_CALL,
+        [RET]: handle_RET
+      };
+
+      if (Object.keys(branchTable).includes(IR.toString())) {
+        branchTable[IR](operandA, operandB);
+      } else {
+        invalid_instruction();
+      }
+
+      // Increment the PC register to go to the next instruction. Instructions
+      // can be 1, 2, or 3 bytes long. Hint: the high 2 bits of the
+      // instruction byte tells you how many bytes follow the instruction byte
+      // for any particular instruction.
+
+      // !!! IMPLEMENT ME
+      let operandCount = (IR >>> 6) & 0b11;
+      let totalInstructionLen = operandCount + 1;
+
       branchTable[IR](operandA, operandB);
-    } else {
-      invalid_instruction();
-    }
+      if (interruptHandler) {
+        this.reg.PC = interruptHandler;
+      } else if (callHandler) {
+        this.reg.PC = callHandler;
+      } else {
+        this.reg.PC += (IR >>> 6) + 1;
+      }
 
-    // Increment the PC register to go to the next instruction. Instructions
-    // can be 1, 2, or 3 bytes long. Hint: the high 2 bits of the
-    // instruction byte tells you how many bytes follow the instruction byte
-    // for any particular instruction.
-
-    // !!! IMPLEMENT ME
-    let operandCount = (IR >>> 6) & 0b11;
-    let totalInstructionLen = operandCount + 1;
-
-    switch (IR) {
-      case CALL: 
-      default:
-      this.reg.PC += totalInstructionLen;
+      //   switch (IR) {
+      //     case CALL:
+      //     default:
+      //       this.reg.PC += totalInstructionLen;
+      //   }
+      // }
     }
   }
 }
